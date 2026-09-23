@@ -1,0 +1,26 @@
+name: Upload to App Store
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download IPA from release
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          release: 'latest'
+          asset: 'SnapSneaker.ipa'
+          target: 'SnapSneaker.ipa'
+
+      - name: Upload to App Store Connect
+        uses: apple-actions/upload-testflight-build@v5
+        with:
+          app-path: SnapSneaker.ipa
+          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
+          api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+          uses-non-exempt-encryption: "false"
+          wait-for-processing: "true"
