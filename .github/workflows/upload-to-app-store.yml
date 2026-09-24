@@ -12,11 +12,16 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          mkdir -p ipa
           gh release download "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" -p "*.ipa" -D ipa
+          ls -la ipa
+      - name: Find IPA path
+        id: ipa
+        run: echo "path=$(ls ipa/*.ipa | head -1)" >> "$GITHUB_OUTPUT"
       - name: Upload to App Store Connect
         uses: apple-actions/upload-testflight-build@v1
         with:
-          app-path: ipa/*.ipa
+          app-path: ${{ steps.ipa.outputs.path }}
           issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
           api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
